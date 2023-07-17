@@ -44,25 +44,18 @@ func (u *ProductUsecase) ShowOfferCompany(company *types.OfferCompany) ([]types.
 func (u *ProductUsecase) FetchAndAppend() {
 	ticker := time.NewTicker(10 * time.Second)
 	done := make(chan bool)
-
 	go func() {
-
 		for {
 			select {
 			case <-done:
 				return
 			case <-ticker.C:
-
 				company := u.Repo.FindAll()
-
 				for _, company := range company {
 					CompanyCache[company] = company.Country
 				}
-
 			}
-
 		}
-
 	}()
 
 }
