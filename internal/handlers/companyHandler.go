@@ -6,6 +6,7 @@ import (
 	"github.com/Safwanseban/voixme-project/internal/types"
 	"github.com/Safwanseban/voixme-project/internal/usecases"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -22,6 +23,9 @@ func NewServer(app *fiber.App, companyUsecase usecases.UsecasesCompany) {
 	}
 	server.App.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
+	server.App.Use(compress.New(compress.Config{
+		Level: compress.LevelBestSpeed,
 	}))
 	server.App.Post("", server.Create)
 	server.App.Get("", server.Fetch)
@@ -48,6 +52,7 @@ func (s *Server) Create(ctx *fiber.Ctx) error {
 }
 
 func (s *Server) Fetch(ctx *fiber.Ctx) error {
+
 	country := ctx.Query("country")
 	if country == "" {
 		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
@@ -62,6 +67,7 @@ func (s *Server) Fetch(ctx *fiber.Ctx) error {
 			"message": "error fetching the records",
 		})
 	}
+
 	return ctx.Status(http.StatusOK).JSON(companies)
 
 }
