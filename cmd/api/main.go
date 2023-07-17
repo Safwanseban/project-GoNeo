@@ -10,15 +10,15 @@ import (
 )
 
 func main() {
-	configs := configs.NewConfig()
+	config := configs.NewConfig()
 
-	db := db.ConnectToDB(configs)
+	db := db.ConnectToDB(config)
 	repo := repo.NewRepo(db)
 	usecase := usecases.NewProductUsecase(repo)
 
 	app := fiber.New()
 	handlers.NewServer(app, usecase)
-
-	app.Listen(configs.String("port"))
+	usecase.FetchAndAppend()
+	app.Listen(config.String("port"))
 
 }
