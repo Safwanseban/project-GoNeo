@@ -22,7 +22,7 @@ func main() {
 	db := db.ConnectToDB(config)
 
 	repo := repo.NewRepo(db)
-	usecase := usecases.NewProductUsecase(repo)
+	usecase := usecases.NewCompanyUsecase(repo)
 
 	handlers.NewServer(app, usecase)
 	usecase.FetchAndAppend()

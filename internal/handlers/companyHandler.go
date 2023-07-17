@@ -11,14 +11,14 @@ import (
 
 type Server struct {
 	App            *fiber.App
-	ProductUseCase usecases.UsecasesProduct
+	ProductUseCase usecases.UsecasesCompany
 }
 
-func NewServer(app *fiber.App, productUsecase usecases.UsecasesProduct) {
+func NewServer(app *fiber.App, companyUsecase usecases.UsecasesCompany) {
 
 	server := &Server{
 		App:            app,
-		ProductUseCase: productUsecase,
+		ProductUseCase: companyUsecase,
 	}
 	server.App.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
@@ -28,8 +28,8 @@ func NewServer(app *fiber.App, productUsecase usecases.UsecasesProduct) {
 }
 
 func (s *Server) Create(ctx *fiber.Ctx) error {
-	product := new(types.Product)
-	if err := ctx.BodyParser(product); err != nil {
+	company := new(types.OfferCompany)
+	if err := ctx.BodyParser(company); err != nil {
 
 		return ctx.Status(http.StatusBadRequest).JSON(
 			fiber.Map{
@@ -37,14 +37,14 @@ func (s *Server) Create(ctx *fiber.Ctx) error {
 			},
 		)
 	}
-	id, err := s.ProductUseCase.CreateProduct(product)
+	id, err := s.ProductUseCase.CreateProduct(company)
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"message": "server error",
 		})
 
 	}
-	return ctx.Status(http.StatusOK).JSON(fiber.Map{"message": "success", "id": id, "body": product})
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{"message": "success", "id": id, "body": company})
 }
 
 func (s *Server) Fetch(ctx *fiber.Ctx) error {
@@ -54,14 +54,14 @@ func (s *Server) Fetch(ctx *fiber.Ctx) error {
 			"message": "provide valid country parameter",
 		})
 	}
-	var product types.Product
-	product.SpecificCountry = types.Country(country)
-	products, err := s.ProductUseCase.ShowProducts(&product)
+	var company types.OfferCompany
+	company.Country = country
+	companies, err := s.ProductUseCase.ShowOfferCompany(&company)
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
 			"message": "error fetching the records",
 		})
 	}
-	return ctx.Status(http.StatusOK).JSON(products)
+	return ctx.Status(http.StatusOK).JSON(companies)
 
 }
