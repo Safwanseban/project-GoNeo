@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Safwanseban/voixme-project/internal/repo"
@@ -11,7 +12,7 @@ type ProductUsecase struct {
 	Repo repo.ProductRepo
 }
 
-type ProductCache map[types.Product]string
+var ProductCache = make(map[types.Product]string, 0)
 
 // CreateProduct implements UsecasesProduct
 func (u *ProductUsecase) CreateProduct(product *types.Product) (*uint, error) {
@@ -24,16 +25,16 @@ func (u *ProductUsecase) CreateProduct(product *types.Product) (*uint, error) {
 
 // ShowProducts implements UsecasesProduct
 func (u *ProductUsecase) ShowProducts(product *types.Product) ([]types.Product, error) {
-	productCache := u.FetchAndAppend()
+	fmt.Println(ProductCache)
 	products := make([]types.Product, 0)
-	for i, v := range productCache {
+	for i, v := range ProductCache {
 		if v == string(product.SpecificCountry) {
 			products = append(products, i)
 		}
 
 	}
 	if len(products) > 0 {
-
+		fmt.Println("this accessed")
 		return products, nil
 	}
 	products, err := u.Repo.FindUsingCountry(product)
@@ -42,30 +43,32 @@ func (u *ProductUsecase) ShowProducts(product *types.Product) ([]types.Product, 
 	}
 	return products, nil
 }
-func (u *ProductUsecase) FetchAndAppend() ProductCache {
+func (u *ProductUsecase) FetchAndAppend() {
 	ticker := time.NewTicker(10 * time.Second)
 	done := make(chan bool)
-	productCache := make(ProductCache, 0)
-	r := func() ProductCache {
+
+	go func() {
 
 		for {
 			select {
 			case <-done:
-				return nil
+				return
 			case <-ticker.C:
 
 				products := u.Repo.FindAll()
 
 				for _, product := range products {
-					productCache[product] = string(product.SpecificCountry)
+					ProductCache[product] = string(product.SpecificCountry)
 				}
-				return productCache
+				fmt.Println(ProductCache)
+
 			}
 
 		}
 
 	}()
-	return r
+	//fmt.Println(productCache)
+
 }
 func NewProductUsecase(repo repo.ProductRepo) UsecasesProduct {
 
@@ -77,5 +80,5 @@ func NewProductUsecase(repo repo.ProductRepo) UsecasesProduct {
 type UsecasesProduct interface {
 	CreateProduct(*types.Product) (*uint, error)
 	ShowProducts(*types.Product) ([]types.Product, error)
-	FetchAndAppend() ProductCache
+	FetchAndAppend()
 }
