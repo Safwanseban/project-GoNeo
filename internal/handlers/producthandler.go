@@ -39,5 +39,5 @@ func (s *Server) Create(ctx *fiber.Ctx) error {
 		})
 
 	}
-	return ctx.Status(http.StatusOK).JSON(fiber.Map{"message": "success", "body": product})
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{"message": "success", "id": id, "body": product})
 }

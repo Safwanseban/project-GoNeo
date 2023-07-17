@@ -16,7 +16,7 @@ func ConnectToDB(conf *koanf.Koanf) *gorm.DB {
 	}
 
 	db.AutoMigrate(
-		types.SampleUser{},
+		types.Product{},
 	)
 	return db
 
