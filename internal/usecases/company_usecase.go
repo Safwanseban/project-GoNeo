@@ -1,7 +1,6 @@
 package usecases
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Safwanseban/voixme-project/internal/repo"
@@ -25,7 +24,7 @@ func (u *ProductUsecase) CreateProduct(company *types.OfferCompany) (*uint, erro
 
 // ShowProducts implements UsecasesProduct
 func (u *ProductUsecase) ShowOfferCompany(company *types.OfferCompany) ([]types.OfferCompany, error) {
-	fmt.Println(CompanyCache)
+
 	offerCompany := make([]types.OfferCompany, 0)
 	for i, v := range CompanyCache {
 		if v == string(company.Country) {

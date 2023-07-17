@@ -8,6 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 )
 
 type Server struct {
@@ -27,8 +28,9 @@ func NewServer(app *fiber.App, companyUsecase usecases.UsecasesCompany) {
 	server.App.Use(compress.New(compress.Config{
 		Level: compress.LevelBestSpeed,
 	}))
-	server.App.Post("", server.Create)
-	server.App.Get("", server.Fetch)
+	server.App.Use(recover.New())
+	server.App.Post("/", server.Create)
+	server.App.Get("/", server.Fetch)
 }
 
 func (s *Server) Create(ctx *fiber.Ctx) error {
@@ -48,7 +50,7 @@ func (s *Server) Create(ctx *fiber.Ctx) error {
 		})
 
 	}
-	return ctx.Status(http.StatusOK).JSON(fiber.Map{"message": "success", "id": id, "body": company})
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{"message": "success", "id": id})
 }
 
 func (s *Server) Fetch(ctx *fiber.Ctx) error {

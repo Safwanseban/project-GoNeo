@@ -1,77 +1,74 @@
 package repo
 
 import (
-	"database/sql"
+	"errors"
 	"fmt"
+	"regexp"
+	"testing"
 
-	"gorm.io/driver/mysql"
-
-	"gorm.io/gorm"
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/Safwanseban/voixme-project/internal/types"
+	"github.com/Safwanseban/voixme-project/internal/utils"
+	"github.com/stretchr/testify/require"
 )
 
-// func TestCreateProduct(t *testing.T) {
-// 	//conf := configs.NewConfig()
+func TestFindUsingCountry(t *testing.T) {
+	//conf := configs.NewConfig()
+	columns := []string{"o_offer_id", "o_client_id", "o_country", "o_image"}
 
-// 	input := types.Product{
-// 	//	ID:              1,
-// 		Name:            "test_product",
-// 		Price:           100,
-// 		Description:     "this is a test product",
-// 		Type:            "test_Type",
-// 		SpecificCountry: "test_Country",
-// 	}
-// 	tests := []struct {
-// 		Name string
-
-// 		WantCall      bool
-// 		MockDb        func(sqlmock.Sqlmock)
-// 		expectedError error
-// 	}{
-// 		{
-// 			Name: "error inserting",
-
-// 			MockDb: func(sqlmock sqlmock.Sqlmock) {
-// 				sqlmock.ExpectBegin()
-// 				sqlmock.ExpectQuery(regexp.QuoteMeta(`INSERT INTO "products" ("name","price","description","type","specific_country","id")
-// 				VALUES ($1,$2,$3,$4,$5,$6) RETURNING "id"`)).
-// 					WithArgs(input.Name, input.Price, input.Description, input.Type, input.SpecificCountry, input.ID).
-// 					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(input.ID))
-// 				sqlmock.ExpectRollback()
-// 			},
-// 			expectedError: errors.New("something went wrong"),
-// 		},
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.Name, func(t *testing.T) {
-
-// 			mockDB, mock, err := sqlmock.New()
-// 			require.NoError(t, err)
-// 			db := newMockDB(mockDB)
-// 			rep := NewRepo(db)
-
-// 			tt.MockDb(mock)
-// 			_, err = rep.Create(&input)
-
-// 			if err != nil {
-// 				require.EqualError(t, err, tt.expectedError.Error())
-// 			}
-
-// 		})
-// 	}
-// }
-
-func newMockDB(db *sql.DB) *gorm.DB {
-
-	gormHandler, err := gorm.Open(mysql.New(mysql.Config{
-		DSN:                       "sqlmock_db_0",
-		DriverName:                "mysql",
-		Conn:                      db,
-		SkipInitializeWithVersion: true,
-	}), &gorm.Config{})
-	fmt.Println(err)
-	if err != nil {
-		return nil
+	input := types.OfferCompany{
+		OfferID:  1,
+		ClientID: 1,
+		Country:  "US",
+		Image:    "test_image",
 	}
+	tests := []struct {
+		Name string
 
-	return gormHandler
+		WantCall      bool
+		MockDb        func(sqlmock.Sqlmock)
+		expectedError error
+	}{
+		{
+			Name: "no db handler",
+
+			MockDb: func(sqlmock sqlmock.Sqlmock) {
+				sqlmock.ExpectBegin()
+				query := fmt.Sprintf(regexp.QuoteMeta("^SELECT (.+) FROM `" + "offer_companies" + "`(.*)"))
+				sqlmock.ExpectQuery(query).WithArgs(1).WillReturnError(errors.New("something wrong"))
+				sqlmock.ExpectRollback()
+			},
+			WantCall:      false,
+			expectedError: errors.New("something went wrong"),
+		},
+		{
+
+			Name: "success",
+			MockDb: func(sqlmock sqlmock.Sqlmock) {
+				sqlmock.ExpectBegin()
+				sqlmock.ExpectQuery("^SELECT (.+) FROM `" + "offer_companies" + "`(.*)").WithArgs(1).
+					WillReturnRows(sqlmock.NewRows(columns).AddRow(1, 1, "US", "test_image"))
+
+				sqlmock.ExpectCommit()
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+
+			mockDB, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			db := utils.NewMockDB(mockDB)
+			repo := NewRepo(db)
+
+			tt.MockDb(mock)
+			if tt.WantCall {
+				_, err = repo.FindUsingCountry(&input)
+			}
+			if err != nil {
+				require.EqualError(t, err, tt.expectedError.Error())
+			}
+
+		})
+	}
 }
