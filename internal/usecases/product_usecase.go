@@ -60,14 +60,12 @@ func (u *ProductUsecase) FetchAndAppend() {
 				for _, product := range products {
 					ProductCache[product] = string(product.SpecificCountry)
 				}
-				fmt.Println(ProductCache)
 
 			}
 
 		}
 
 	}()
-	//fmt.Println(productCache)
 
 }
 func NewProductUsecase(repo repo.ProductRepo) UsecasesProduct {

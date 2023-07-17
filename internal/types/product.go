@@ -8,7 +8,7 @@ type SampleUser struct {
 	IssuingCountry string
 }
 type Product struct {
-	gorm.Model
+	ID              uint    `json:"id" gorm:"primarykey"`
 	Name            string  `json:"name"`
 	Price           uint    `json:"price"`
 	Description     string  `json:"description"`
