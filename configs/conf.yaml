@@ -1,0 +1,3 @@
+database:
+  host: "root:sudobringmeabeer@tcp(localhost:3306)/sample?charset=utf8mb4&parseTime=True&loc=Local"
+port: ":3000"
