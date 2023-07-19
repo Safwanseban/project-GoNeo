@@ -1,0 +1,21 @@
+[
+  {
+    "offerId": 1,
+    "clientId": 1,
+    "country": "india",
+    "image": "test_image",
+    "imageWidth": 100,
+    "imageHeight": 100,
+    "textLocale": "",
+    "validityTextLocale": "",
+    "position": 0,
+    "validFrom": "0001-01-01T00:00:00Z",
+    "showFrom": "0001-01-01T00:00:00Z",
+    "validTo": "0001-01-01T00:00:00Z",
+    "flag": 0,
+    "pageCount": 0,
+    "storeUrl": "",
+    "storeUrlTitle": "",
+    "offerHome": 0
+  }
+]
